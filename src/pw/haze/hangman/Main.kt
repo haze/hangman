@@ -1,5 +1,7 @@
 package pw.haze.hangman
 
+import java.io.File
+import java.nio.file.Files.readAllLines
 import java.util.*
 
 /**
@@ -10,11 +12,12 @@ import java.util.*
 val input: Scanner = Scanner(System.`in`)
 var hangman: Hangman = Hangman("n/a")
 var another = false
-var words = arrayOf("words", "television", "monty python", "terraria")
+var words = lazy { readAllLines(File("res/words.txt").toPath()) }
 val rand = Random()
 
 fun main(args: Array<String>) {
     println("Be warned!-- Only the first letter will be accepted.")
+
     do {
         play()
         println("Want to play another game? [y/n]: ")
@@ -24,18 +27,19 @@ fun main(args: Array<String>) {
 }
 
 fun play() {
-    hangman = Hangman(words[rand.nextInt(words.size)])
+    hangman = Hangman(words.value[rand.nextInt(words.value.size)])
     var isOver = false
     var winComplete = false
     do {
         hangman.drawMan()
         val line = input.nextLine()
-        if(line.length == 0) { println("You entered nothing!"); continue }
+        if (line.length == 0) { println("You entered nothing!"); continue }
         val inChar = line[0].toLowerCase()
-        if (inChar.isDigit()) { println("Only Letters!"); continue }
+        if (hangman.blacklist.contains(inChar) || hangman.knownChars.contains(inChar)) { println("You've already tried that letter!"); continue }
+        if (!inChar.isLetter()) { println("Only Letters!"); continue }
         isOver = hangman.progress(inChar)
         winComplete = hangman.isComplete()
     } while (!winComplete  && !isOver)
     hangman.drawMan()
-    println(if(isOver) "You Lost!" else "You Win!")
+    println(if(isOver) "You Lost! The word was ${hangman.word}" else "You Win!")
 }

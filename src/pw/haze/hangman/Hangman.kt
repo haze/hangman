@@ -16,7 +16,7 @@ class Hangman(val word: String) {
 
     val knownChars = arrayListOf<Char>()
     val blacklist = arrayListOf<Char>()
-    val alphaet = "abcdefghijklmnopqrstuvwxyz".toCharArray()
+    private val alphaet = "abcdefghijklmnopqrstuvwxyz".toCharArray()
 
     fun progress(guess: Char): Boolean {
 
@@ -46,10 +46,14 @@ class Hangman(val word: String) {
         }
     }
 
-    fun restOfAlphabet(): String = buildString {
-        chars@ for (char in alphaet) {
-            if(!blacklist.contains(char)) { append("$char ") }
+    fun restOfAlphabet(): String {
+        val builder = StringBuilder()
+        chars@ for(char in alphaet) {
+            if(!blacklist.contains(char) && !knownChars.contains(char)) {
+                builder.append("$char ")
+            }
         }
+        return builder.toString()
     }
 
 
